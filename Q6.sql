@@ -50,7 +50,7 @@ FROM battingpost
 WHERE yearid = 2016
 
 --
-SELECT p.namefirst,p.namelast,
+SELECT DISTINCT p.namefirst,p.namelast,
        b.yearid,
        b.sb,b.cs,
 	   bp.sb as post_sb,
@@ -58,17 +58,25 @@ SELECT p.namefirst,p.namelast,
 	   
 	   CASE WHEN bp.sb IS NULL THEN (b.sb+b.cs)
 	        WHEN bp.sb IS NOT NULL THEN (b.sb+b.cs+bp.sb+bp.cs) 
-			END AS total_attempt
-	   
+			END AS total_attempt,
+	
+	   CASE WHEN bp.sb IS NULL THEN b.sb/(b.sb+b.cs)
+	        WHEN bp.sb IS NOT NULL THEN ROUND(((b.sb+bp.sb)::decimal/(b.sb+b.cs+bp.sb+bp.cs))::decimal,4)
+	        END AS success_rate
+			
 	 
 	   
 FROM batting as b
 
-LEFT JOIN people as p
-ON b.playerid = p.playerid
-LEFT JOIN battingpost as bp
-ON p.playerid = bp.playerid
+	LEFT JOIN people as p
+	ON b.playerid = p.playerid
+	LEFT JOIN battingpost as bp
+	ON p.playerid = bp.playerid
 
 WHERE b.yearid = 2016
-ORDER BY sb DESC
+AND b.sb+b.cs+bp.sb+bp.cs >20
+ORDER BY success_rate DESC
+
+---
+
 	   
