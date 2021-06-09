@@ -84,7 +84,7 @@ SELECT p.namefirst,
 	   CASE WHEN post_sb IS NULL THEN sb+cs 
 	        WHEN post_sb IS NOT NULL THEN sb+cs+post_sb+post_cs
 			END AS total_attempt,
-		CASE WHEN post_sb IS NULL THEN (sb/(sb+cs))::decimal
+		CASE WHEN post_sb IS NULL THEN (sb::decimal/(sb+cs)::decimal)
 		     WHEN post_sb IS NOT NULL THEN ROUND(((sb+post_sb)::decimal/(sb+cs+post_sb+post_cs)::decimal),4)
 	         END AS success_rate
 	   
