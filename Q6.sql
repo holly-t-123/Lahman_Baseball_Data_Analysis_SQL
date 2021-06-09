@@ -1,24 +1,9 @@
---1
---What range of years for baseball games played does the provided database cover?
-SELECT MIN(yearid),MAX(yearid)
-FROM appearances
---1871~2016
-
---2
---Find the name and height of the shortest player in the database. --Edward Carl Gaedel / 43 / 1 game
---How many games did he play in? What is the name of the team for which he played?
-SELECT DISTINCT t.name as teamname,
-                p.namegiven,p.namelast,p.height,
-				a.teamid,a.g_all
-FROM people as p
-LEFT JOIN appearances as a
-ON p.playerid = a.playerid
-LEFT JOIN teams as t
-ON a.teamid = t.teamid
-ORDER BY p.height
 
 
---6 :Jonathat Villar with 62 success
+
+
+--6 :
+     --Rajai Davis with post season
 
 --Find the player who had the most success stealing bases in 2016, 
 --where success is measured as the percentage of stolen base attempts which are successful. 
