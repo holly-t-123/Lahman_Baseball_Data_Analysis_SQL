@@ -62,7 +62,8 @@ FROM batting as b
 
 WHERE b.yearid = 2016
 AND b.sb+b.cs+bp.sb+bp.cs >20
-ORDER BY success_rate DESC
+ORDER BY total_attempt DESC
+--ORDER BY success_rate DESC
 
 --- post season data + with CET
 
