@@ -10,47 +10,36 @@ WITH tn_schools AS (SELECT DISTINCT schoolname, schoolid
 					FROM schools 
 					WHERE schoolstate = 'TN'
 					),
+					
 tn_players AS (	SELECT DISTINCT playerid, schoolid 
 				FROM collegeplaying 
 				WHERE schoolid IN (SELECT schoolid 
 				   					FROM tn_schools)
-			   ORDER BY playerid
+			   ORDER BY schoolid
 				),
-								
-tn_players_salary AS (SELECT playerid, 
-					  AVG(salary)::numeric::money AS avg_salary 
-					  FROM salaries 
-					  WHERE playerid IN (SELECT playerid 
-										 FROM tn_players
-										)
-					  GROUP BY playerid
-					  ),
 
-tn_players_awards AS (	SELECT playerid, awardid
-				  		FROM awardsplayers
-				  		WHERE playerid IN (SELECT playerid FROM tn_players)
+avg_player_salary_by_school AS (SELECT	schoolid,
+										COUNT(DISTINCT(playerid)) AS num_players,
+										AVG(salary)::numeric::money AS avg_salary
+								FROM tn_players
+								LEFT JOIN salaries USING(playerid)
+								GROUP BY schoolid),
+						
+awards_by_school AS (	SELECT schoolid, COUNT(awardid) AS num_player_awards
+				  		FROM tn_players LEFT JOIN awardsplayers USING(playerid)
+					  	GROUP BY schoolid
 					  )
 					  
-SELECT schoolname AS school, 
-		COUNT(DISTINCT tnp.playerid) AS num_players, 
-		COALESCE(AVG(avg_salary::numeric)::money::text,'no data') AS avg_player_salary,
-		COUNT(awardid) AS num_player_awards
-FROM tn_schools AS tns
-FULL JOIN tn_players AS tnp
+SELECT DISTINCT schoolname AS school, 
+		num_players, 
+		COALESCE(avg_salary::text,'no data') AS avg_salary,
+		num_player_awards
+FROM tn_schools
+LEFT JOIN tn_players
 USING(schoolid)
-FULL JOIN tn_players_salary AS tnps
-USING(playerid)
-FULL JOIN tn_players_awards
-USING(playerid)
-GROUP BY schoolname
+LEFT JOIN avg_player_salary_by_school
+USING(schoolid)
+LEFT JOIN awards_by_school
+USING(schoolid)
+WHERE num_players > 0
 ORDER BY num_players DESC
-
-
--- SELECT DISTINCT playerid FROM collegeplaying WHERE schoolid = 'tennessee'
--- SELECT AVG(salary) 
--- FROM salaries 
--- WHERE playerid IN (SELECT playerid 
--- 				   FROM tn_players 
--- 				   WHERE schoolid='tennessee')
-				   
--- SELECT * FROM schools WHERE schoolid = 'tennessee'
